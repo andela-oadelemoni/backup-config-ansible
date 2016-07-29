@@ -1,0 +1,55 @@
+## 
+- name: Install AWS CLI
+  pip: name=awscli state=latest
+  tags:
+    - install
+
+- name: Create S3 bucket
+  s3_bucket: 
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    name: "{{ s3_bucket_name }}"
+  tags:
+    - create-bucket
+
+- name: Check if new bucket exists
+  command: bash -c "aws s3 ls {{ s3_bucket_name }}"
+  register: check_bucket
+  ignore_errors: True
+  tags:
+    - confirm-bucket
+
+- fail: msg="The creation of {{ s3_bucket_name }} was not successful"
+  when: check_bucket|failed
+  tags:
+    - confirm-bucket
+
+- name: Upload backup directory to AWS S3
+  s3_bucket:
+    aws_access_key: "{{ aws_key }}"
+    aws_secret_key: "{{ aws_secret }}"
+    name: "{{ s3_bucket_name }}"
+    src: "{{ backup_directory }}"
+    mode: put
+  tags:
+    - upload
+
+## Automate backup process with cron 
+- name: Copy cron file to /etc/cron.d directory
+  template: src=aws_s3_cron.j2 dest=/etc/cron.d/aws_s3_cron owner=root
+  tags:
+    - cron-setup
+
+- name: Check that rsnapshot cron exists
+  command: bash -c "cat /etc/cron.d/aws_s3_cron | grep rsnapshot"
+  register: bucket_cron
+  ignore_errors: True
+  tags:
+    - cron-check
+
+- name: Throw error if cron does not exist
+  fail: msg="rsnapshot cron does not seem to exist"
+  when: bucket_cron|failed
+  tags:
+    - cron-check
+

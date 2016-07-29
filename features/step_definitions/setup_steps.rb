@@ -11,6 +11,11 @@ Given(/^I provision it$/) do
   expect(status.success?).to eq(true)
 end
 
+When(/^I install dependencies$/) do
+  command = "ansible-playbook -i playbooks/hosts.ini playbooks/rsnapshot.yml --tags 'commmon'"
+  output, error, @status = Open3.capture3 "#{command}"
+end
+
 When(/^I install rsnapshot$/) do
   command = "ansible-playbook -i playbooks/hosts.ini playbooks/rsnapshot.yml --tags 'install'"
   output, error, @status = Open3.capture3 "#{command}"

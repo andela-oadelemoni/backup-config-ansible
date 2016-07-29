@@ -5,6 +5,10 @@ Feature: Install rsnapshot backup tool and configure it to back up critical data
 		And I provision it
 
 	Scenario:
+		When I install dependencies
+		Then it should be successful
+
+	Scenario:
 		When I install rsnapshot
 		Then it should be successful
 		And the config file should exist

@@ -5,9 +5,18 @@ Feature: Install AWS CLI and setup automatic upload of backups
 		And I provision it
 
 	Scenario:
+		When I install dependencies
+		Then it should be successful
+
+	Scenario:
 		When I install AWS CLI
 		Then it should be successful
 		And running 'aws --version' should return a version number
+
+	Scenario:
+		When I create S3 bucket
+		Then it should be successful
+		And my newly created bucket should be available
 
 	Scenario:
 		When I upload the backup folder

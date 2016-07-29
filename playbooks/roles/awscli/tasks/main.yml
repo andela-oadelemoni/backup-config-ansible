@@ -1,0 +1,53 @@
+# Setup up awscli dependencies
+- name: Update apt cache
+  apt: update_cache=yes
+  tags:
+    - dependencies
+
+- name: Update OS
+  apt: upgrade=dist force=yes
+  tags:
+    - dependencies
+
+- name: Check if python is installed
+  command: bash -c "python --version 2>&1 | awk '{print $2}'"
+  register: python_version
+  tags:
+    - python-test
+    - dependencies
+
+# - debug: var=python_version
+#   tags:
+#     - python-test
+
+- name: Install minimum required python version if not present
+  apt: name=python2.7 state=present
+  when: python_version.stdout < '2.6.5'
+  tags:
+    - python-test
+    - dependencies
+
+- name: Check if pip is installed
+  command: bash -c "pip --version | grep pip"
+  register: pip_version
+  ignore_errors: True
+  tags:
+    - python-test
+    - dependencies
+
+- name: Download pip if not present
+  get_url: url=https://bootstrap.pypa.io/get-pip.py dest={{ ansible_env.PWD }}
+  when: pip_version|failed
+  tags:
+    - python-test
+    - dependencies
+
+- name: Install downloaded pip file
+  command: python get-pip.py
+  args:
+    chdir: "{{ ansible_env.PWD}}"
+  when: pip_version|failed
+  tags:
+    - python-test
+    - dependencies
+
