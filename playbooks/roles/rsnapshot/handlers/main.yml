@@ -1,0 +1,7 @@
+- name: Confirm that config file exists
+  stat: path=/etc/rsnapshot.conf
+  register: result
+
+- name: rsnapshot error message
+  fail: msg="Cannot find rsnapshot config file. Confirm if installation was successful"
+  when: result.stat.exists == false

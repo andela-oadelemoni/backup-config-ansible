@@ -1,0 +1,31 @@
+# MYSQL configuration block
+- name: Check if MySQL is installed
+  command: bash -c "dpkg -l | grep mysql-server"
+  register: mysql_status
+  when: MYSQL is defined
+  ignore_errors: True
+  tags:
+    - configure
+
+- name: Get MySQL data directory
+  command: bash -c "cat /etc/mysql/my.cnf | grep datadir | awk '{print $3}'"
+  register: mysql_datadir
+  when: MYSQL is defined and mysql_status|success
+  tags:
+    - configure
+
+- name: Debug MySQL datadir
+  debug: msg="{{mysql_datadir}}"
+  when: MYSQL is defined and mysql_status|success
+  tags:
+    - configure
+
+- name: Add MySQL folder to be backed up
+  blockinfile:
+    dest: /etc/rsnapshot.conf
+    marker: "#{mark} MYSQL BACKUP FOLDER"
+    insertafter: "# LOCALHOST"
+    block: "backup\t{{mysql_datadir.stdout}}\tlocalhost/"
+  when: MYSQL is defined and mysql_status|success
+  tags:
+    - configure

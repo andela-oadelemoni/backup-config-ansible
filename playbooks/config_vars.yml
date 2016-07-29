@@ -1,0 +1,7 @@
+# Playbook configuration
+
+hosts: vagrant
+user: vagrant
+
+# Supported services to backup
+MYSQL: mysql

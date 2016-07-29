@@ -1,0 +1,12 @@
+--- # Playbook to install rsnapshot backup tool
+- hosts: "{{ hosts }}"
+  remote_user: "{{ user }}"
+  become: yes
+  become_method: sudo
+  gather_facts: yes
+  connection: ssh
+  vars_files:
+    - config_vars.yml
+  roles:
+    - commons
+    - rsnapshot

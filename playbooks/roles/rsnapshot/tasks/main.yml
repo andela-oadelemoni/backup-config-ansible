@@ -1,0 +1,52 @@
+- name: Install rsnapshot dependencies
+  apt: name={{ item }} state=latest
+  with_items:
+    - liblchown-perl
+    - logrotate
+    - perl
+    - rsync
+    - openssh-client
+  tags:
+    - install
+
+- name: Install rsnapshot from apt repository
+  apt: name=rsnapshot state=latest
+  notify:
+    - Confirm that config file exists
+    - rsnapshot error message
+  tags:
+    - install
+
+### MYSQL CONFIGURATION BLOCK ###
+- include: mysql.yml
+
+- name: Test if configuration was successful
+  command: bash -c "rsnapshot configtest"
+  register: config_test
+  tags:
+    - configuration-test
+
+- name: Fail if configuration is not successful
+  fail: msg="rsnapshot configuration was not successful"
+  when: config_test|failed
+  tags:
+    - configuration-test
+
+- name: Copy cron file to /etc/cron.d directory
+  copy: src=rsnapshot_cron dest=/etc/cron.d/rsnapshot_cron owner=root
+  tags:
+    - cron-setup
+
+- name: Check that rsnapshot cron exists
+  command: bash -c "cat /etc/cron.d/rsnapshot_cron | grep rsnapshot"
+  register: rsnapshot_cron
+  tags:
+    - cron-check
+
+- name: Throw error if cron does not exist
+  fail: msg="rsnapshot cron does not seem to exist"
+  when: rsnapshot_cron|failed
+  tags:
+    - cron-check
+
+
