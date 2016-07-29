@@ -1,0 +1,23 @@
+## Test rsnapshot backup for validity
+- name: Trigger backup task
+  command: rsnapshot hourly
+  register: task_result
+  tags:
+    - backup-test
+
+- name: Task result
+  debug: var=task_result
+  tags:
+    - backup-test
+
+- name: Get backup folders
+  command: bash -c "cat /etc/rsnapshot.conf | grep ^backup | awk '{print $2}'"
+  register: backup_folders
+  tags:
+    - backup-verify
+
+- name: Verify backup content
+  command: bash -c "diff --exclude=.ansible --no-dereference -r {{ item }} /var/cache/rsnapshot/hourly.0/localhost{{ item }}"
+  with_items: "{{backup_folders.stdout_lines}}"
+  tags:
+    - backup-verify

@@ -1,0 +1,17 @@
+## Automate backpu process with cron 
+- name: Copy cron file to /etc/cron.d directory
+  copy: src=rsnapshot_cron dest=/etc/cron.d/rsnapshot_cron owner=root
+  tags:
+    - cron-setup
+
+- name: Check that rsnapshot cron exists
+  command: bash -c "cat /etc/cron.d/rsnapshot_cron | grep rsnapshot"
+  register: rsnapshot_cron
+  tags:
+    - cron-check
+
+- name: Throw error if cron does not exist
+  fail: msg="rsnapshot cron does not seem to exist"
+  when: rsnapshot_cron|failed
+  tags:
+    - cron-check

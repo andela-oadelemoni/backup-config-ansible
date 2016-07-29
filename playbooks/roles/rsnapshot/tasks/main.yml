@@ -18,7 +18,10 @@
     - install
 
 ### MYSQL CONFIGURATION BLOCK ###
+
 - include: mysql.yml
+
+### TEST CONFIGURATION ###
 
 - name: Test if configuration was successful
   command: bash -c "rsnapshot configtest"
@@ -32,21 +35,12 @@
   tags:
     - configuration-test
 
-- name: Copy cron file to /etc/cron.d directory
-  copy: src=rsnapshot_cron dest=/etc/cron.d/rsnapshot_cron owner=root
-  tags:
-    - cron-setup
+### TEST BACKUP COMMAND MANUALLY ###
 
-- name: Check that rsnapshot cron exists
-  command: bash -c "cat /etc/cron.d/rsnapshot_cron | grep rsnapshot"
-  register: rsnapshot_cron
-  tags:
-    - cron-check
+- include: backup.yml
 
-- name: Throw error if cron does not exist
-  fail: msg="rsnapshot cron does not seem to exist"
-  when: rsnapshot_cron|failed
-  tags:
-    - cron-check
 
+### AUTOMATE BACKUP PROCESS ###
+
+- include: cron.yml
 

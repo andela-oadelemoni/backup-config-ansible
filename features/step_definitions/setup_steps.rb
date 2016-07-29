@@ -36,6 +36,18 @@ And(/^running configtest should return OK$/) do
   expect(status.success?).to eq(true)
 end
 
+When(/^I run a backup task$/) do
+  command = "ansible-playbook -i playbooks/hosts.ini playbooks/rsnapshot.yml --tags 'backup-test'"
+  output, error, @status = Open3.capture3 "#{command}"
+end
+
+And(/^my backup directories and files should be the same as the source$/) do
+	command = "ansible-playbook -i playbooks/hosts.ini playbooks/rsnapshot.yml --tags 'backup-verify'"
+	output, error, status = Open3.capture3 "#{command}"
+
+	expect(status.success?).to eq(true)
+end
+
 When(/^I setup backup cron jobs$/) do
   command = "ansible-playbook -i playbooks/hosts.ini playbooks/rsnapshot.yml --tags 'cron-setup'"
   output, error, @status = Open3.capture3 "#{command}"
@@ -47,10 +59,3 @@ Then(/^crontab should contain my list of jobs$/) do
 
   expect(status.success?).to eq(true)
 end
-
-### Additional piece of code
-
-# command = "ansible vagrant -i playbooks/hosts.ini -s -u vagrant -m stat -a 'path=/etc/rsnapshot.conf' | grep true"
-  # output, error, status = Open3.capture3 "#{command}"
-  # puts output
-  # puts error
