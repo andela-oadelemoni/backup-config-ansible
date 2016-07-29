@@ -1,13 +1,39 @@
 ## 
 - name: Install AWS CLI
   pip: name=awscli state=latest
+  register: awscli_installed
+  tags:
+    - install
+
+- debug: var=awscli_installed
+  tags:
+    - install
+
+- name: Create .aws dir under home directory for awscli config 
+  file:  
+    path={{ ansible_env.PWD }}/.aws
+    state=directory
+    owner={{ ansible_env.USER }}
+    mode=0755
+  when: awscli_installed|succeeded
+  tags:
+    - install
+
+- name: Copy awscli config using templates
+  template: 
+    src={{item}}.j2
+    dest={{ ansible_env.PWD}}/.aws/{{item}} 
+    owner={{ ansible_env.USER }}
+    mode=0644
+  with_items:
+    - config
+    - credentials
+  when: awscli_installed|succeeded
   tags:
     - install
 
 - name: Create S3 bucket
   s3_bucket: 
-    aws_access_key: "{{ aws_key }}"
-    aws_secret_key: "{{ aws_secret }}"
     name: "{{ s3_bucket_name }}"
   tags:
     - create-bucket

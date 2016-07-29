@@ -6,8 +6,9 @@
   gather_facts: yes
   connection: ssh
   vars_files:
+    - credentials.yml
     - config_vars.yml
-    - aws_credentials.yml
+    - aws_config_vars.yml
   roles:
     - awscli
     - s3-bucket

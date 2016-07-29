@@ -1,3 +1,4 @@
 .vagrant/
 playbooks/*.retry
 playbooks/aws_credentials.yml
+playbooks/credentials.yml

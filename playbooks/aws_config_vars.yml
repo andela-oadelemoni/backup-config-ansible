@@ -1,0 +1,3 @@
+aws_region: us-west-1
+backup_directory: /var/cache/rsnapshot
+s3_bucket_name: kamiye_server_backup
