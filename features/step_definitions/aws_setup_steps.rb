@@ -1,18 +1,21 @@
 require 'open3'
 
-When(/^I install dependencies$/) do
+When(/^I install aws dependencies$/) do
   command = "ansible-playbook -i playbooks/hosts.ini playbooks/s3-bucket.yml --tags 'dependencies'"
   output, error, @status = Open3.capture3 "#{command}"
+  
 end
 
 When(/^I install AWS CLI$/) do
   command = "ansible-playbook -i playbooks/hosts.ini playbooks/s3-bucket.yml --tags 'install'"
   output, error, @status = Open3.capture3 "#{command}"
+
 end
 
 Then(/^running 'aws \-\-version' should return a version number$/) do
   command = "vagrant ssh -c 'aws --version'"
   output, error, status = Open3.capture3 "#{command}"
+
 
   expect(status.success?).to eq(true)
 end

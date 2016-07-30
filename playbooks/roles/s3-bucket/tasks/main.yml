@@ -11,24 +11,24 @@
 
 - name: Create .aws dir under home directory for awscli config 
   file:  
-    path={{ ansible_env.PWD }}/.aws
+    path={{ ansible_env.HOME }}/.aws
     state=directory
     owner={{ ansible_env.USER }}
     mode=0755
-  when: awscli_installed|succeeded
+  when: awscli_installed|success
   tags:
     - install
 
 - name: Copy awscli config using templates
   template: 
     src={{item}}.j2
-    dest={{ ansible_env.PWD}}/.aws/{{item}} 
+    dest={{ ansible_env.HOME}}/.aws/{{item}} 
     owner={{ ansible_env.USER }}
     mode=0644
   with_items:
     - config
     - credentials
-  when: awscli_installed|succeeded
+  when: awscli_installed|success
   tags:
     - install
 
@@ -50,13 +50,15 @@
   tags:
     - confirm-bucket
 
-- name: Upload backup directory to AWS S3
-  s3_bucket:
-    aws_access_key: "{{ aws_key }}"
-    aws_secret_key: "{{ aws_secret }}"
-    name: "{{ s3_bucket_name }}"
-    src: "{{ backup_directory }}"
-    mode: put
+- name: Archive backup directory
+  command: bash -c "tar -zcvf backup.tar.gz {{ backup_directory }}"
+  args:
+    chdir: "{{ ansible_env.HOME }}"
+  tags:
+    - upload
+
+- name: Upload backup archive to AWS S3
+  command: bash -c "aws s3 mv {{ ansible_env.HOME }}/backup.tar.gz s3://{{ s3_bucket_name }}"
   tags:
     - upload
 

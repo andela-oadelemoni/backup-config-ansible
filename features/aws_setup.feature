@@ -5,7 +5,7 @@ Feature: Install AWS CLI and setup automatic upload of backups
 		And I provision it
 
 	Scenario:
-		When I install dependencies
+		When I install aws dependencies
 		Then it should be successful
 
 	Scenario:

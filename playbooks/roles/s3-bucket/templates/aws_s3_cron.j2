@@ -1,5 +1,6 @@
-# Current configuration uploads backup every hour
-0 0 * * *     root	aws s3 mv {{ backup_directory }} s3://{{ s3_bucket_name }} --recursive
+# Current configuration uploads backup every hour but creates an archive 10 minutes before uploading
+50 0 * * *     root	tar -zcvf {{ ansible_env.HOME }}/backup.tar.gz {{ backup_directory }}
+0 0 * * *     root	aws s3 mv {{ ansible_env.HOME }}/backup.tar.gz s3://{{ s3_bucket_name }}
 # Ideal remote backup might be weekly or daily
 #30 23 * * *     root	aws s3 mv {{ backup_directory }} s3://{{ s3_bucket_name }} --recursive
 #0 0 * * 6     root	aws s3 mv {{ backup_directory }} s3://{{ s3_bucket_name }} --recursive

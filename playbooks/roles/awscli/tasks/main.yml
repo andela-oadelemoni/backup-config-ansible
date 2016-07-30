@@ -51,3 +51,23 @@
     - python-test
     - dependencies
 
+- name: Check if Boto is installed
+  command: python -c "import boto; print boto.Version" | grep -Eo '[0-9.]{1,}'
+  register: boto_installed
+  ignore_errors: True
+  tags:
+    - python-test
+    - dependencies
+
+- debug: var=boto_installed
+  tags:
+      - python-test
+      - dependencies
+
+- name: Install Boto
+  pip: name=boto state=latest
+  when: boto_installed|failed
+  tags:
+    - python-test
+    - dependencies
+
