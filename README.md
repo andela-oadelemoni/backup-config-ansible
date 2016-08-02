@@ -39,7 +39,7 @@ To automate the backup process and move backup files to AWS S3, create a `creden
 aws_key: <aws access key>
 aws_secret: <aws secret key>
 ```
-*Note that this file should **NOT** be public*.
+*Note that this file should NOT be public*
 
 Next, open `aws_config_vars.yml` file in playbooks directory and edit the file like below:
 ```ruby
